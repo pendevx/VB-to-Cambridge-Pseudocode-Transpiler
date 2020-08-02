@@ -6,14 +6,17 @@
         xmlns:local="clr-namespace:VB_to_Cambridge_Pseudocode_Transpiler"
         mc:Ignorable="d"
         Title="VB.Net to Pseudocode Transpiler" Height="710" Width="1000">
-    <StackPanel x:Name="border" Margin="5 5 5 5" >
+    <StackPanel x:Name="border" Margin="0 0 0 5" >
 
         <Grid>
 
             <Menu x:Name="menuBar" Background="LightGray">
                 <MenuItem Header="File">
-                    <MenuItem Header="Import code"/>
-                    <MenuItem Header="Download transpiled code"/>
+                    <MenuItem x:Name="fileNew" Header="New" Click="fileNew_Click"/>
+                    <MenuItem x:Name="fileOpen" Header="Open"/>
+                    <Separator/>
+                    <MenuItem x:Name="fileSave" Header="Save"/>
+                    <MenuItem x:Name="fileSaveAs" Header="Save As"/>
                 </MenuItem>
                 <MenuItem Header="Help"/>
             </Menu>

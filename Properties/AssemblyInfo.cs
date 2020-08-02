@@ -8,9 +8,9 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("VB to Cambridge Pseudocode Transpiler")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A transpiler which transpiles VB.Net code to Cambridge Pseudocode")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Pendevx")]
 [assembly: AssemblyProduct("VB to Cambridge Pseudocode Transpiler")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
