@@ -1,32 +1,32 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 
 namespace VB_to_Cambridge_Pseudocode_Transpiler
 {
 	public partial class MainWindow : Window
 	{
 		private string filePath;
-
 		public MainWindow()
 		{
 			InitializeComponent();
-			this.Title = "Untitled - VB.Net to Pseudocode Transpiler";
-			this.WindowState = WindowState.Maximized;
-			this.WindowStyle = WindowStyle.SingleBorderWindow;
+			Title = "Untitled - VB.Net to Pseudocode Transpiler";
+			WindowState = WindowState.Maximized;
+			WindowStyle = WindowStyle.SingleBorderWindow;
 		}
-		private void transpileButton_Click(object sender, RoutedEventArgs e)
-		{
-			string input = inputTextbox.Text;
-			outputTextbox.Text = Parse(input);
-		}
+		private void transpileButton_Click(object sender, RoutedEventArgs e) => outputTextbox.Text = Parse(inputTextbox.Text);
 		public string Parse(string input)
 		{
+			// declarations
 			string previousItem = "";
 			bool previousIsSelect = false;
 			bool equalsInCondition = false;
 			bool inQuotationOrComment = false;
+			bool inOutput = false;
 			int i = 0;
 			string output = "";
 
+			// where magic happens
 			while (i < input.Length)
 			{
 				int startIndex = i;
@@ -36,19 +36,19 @@ namespace VB_to_Cambridge_Pseudocode_Transpiler
 						break;
 				}
 
+				// getting word to be evaluated
 				string word = input.Substring(startIndex, i - startIndex);
 
-				//if (word == "\n")
-				//	inQuotationOrComment = false;
-
+				// checking when the word starts and ends with quotation
 				if (word == "\"")
 					inQuotationOrComment = !inQuotationOrComment;
 
+				// selecting keywords to convert
 				if (!inQuotationOrComment)
 				{
 					switch (word.ToLower())
 					{
-						#region if, while, then <needs condition some evaluation>
+						#region conditional statements
 
 						case "if":
 							equalsInCondition = true;
@@ -56,16 +56,19 @@ namespace VB_to_Cambridge_Pseudocode_Transpiler
 							break;
 
 						case "while":
-							if (previousItem == "END")
-							{
-								word = word.ToUpper();
-							}
-							else
-							{
+							if (previousItem != "END")
 								equalsInCondition = true;
-								word = word.ToUpper();
-							}
+							word = word.ToUpper();
 							break;
+
+						case "do":
+							word = "REPEAT";
+							break;
+						case "until":
+							word = word.ToUpper();
+							equalsInCondition = true;
+							break;
+
 
 						case "then":
 							equalsInCondition = false;
@@ -81,11 +84,11 @@ namespace VB_to_Cambridge_Pseudocode_Transpiler
 						case "for":
 						case "to":
 						case "next":
-						case "do":
 						case "or":
 						case "and":
 						case "not":
 						case "mod":
+						case "loop":
 							word = word.ToUpper();
 							break;
 
@@ -166,39 +169,36 @@ namespace VB_to_Cambridge_Pseudocode_Transpiler
 					}
 					if (word.ToLower().StartsWith("console.write"))
 					{
-						int iParen = word.IndexOf("(") + 1;
-						word = $"OUTPUT {word.Substring(iParen, word.LastIndexOf(")") - iParen)}";
+						int iParen = word.IndexOf("(");
+						word = $"OUTPUT {word.Substring(iParen + 1)}";
+						inOutput = true;
 					}
+					if (word.ToLower().EndsWith(")") && inOutput == true)
+						word = word.Substring(0, word.Length - 1);
 					if (word.StartsWith("'"))
 					{
 						inQuotationOrComment = true;
-						string comment = word.Substring(1);
-						word = $"// {comment}";
+						string comment = word.Substring(1, word.Length - 1);
+						word = $"//{comment}";
 					}
 				}
 
 				previousItem = word;
-
-				#region combining
-
 				output += word;
 
 				if (i < input.Length)
 					output += input[i];
 
-				label:
-				if (++i >= input.Length)
-					break;
-				else if (char.IsWhiteSpace(input[i]))
+				while (++i < input.Length && char.IsWhiteSpace(input[i]))
 				{
 					if (input[i] == '\n')
+					{
 						inQuotationOrComment = false;
+						inOutput = false;
+					}
+
 					output += input[i];
-					goto label;
 				}
-
-				#endregion
-
 			}
 
 			return output;
@@ -207,7 +207,58 @@ namespace VB_to_Cambridge_Pseudocode_Transpiler
 		{
 			outputTextbox.Clear();
 			inputTextbox.Clear();
+			filePath = "";
 			this.Title = "Untitled - VB.Net to Pseudocode Transpiler";
+		}
+		private void fileOpen_Click(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			openFileDialog.Title = "Open file";
+			openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*|Visual Basic Project (*.vb)|*.vb*";
+			openFileDialog.Multiselect = false;
+
+			if (openFileDialog.ShowDialog() == true)
+			{
+				filePath = openFileDialog.FileName;
+				inputTextbox.Text = File.ReadAllText(filePath);
+				Title = $"{filePath} - VB.Net to Pseudocode Transpiler";
+			}
+		}
+		private void fileSave_Click(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog saveFileDialog = new SaveFileDialog();
+			if (filePath == "" || filePath == null)
+			{
+				saveFileDialog.Title = "Save as";
+				saveFileDialog.Filter = "Text File (*.txt)|*.txt";
+
+				if (saveFileDialog.ShowDialog() == true)
+				{
+					filePath = saveFileDialog.FileName;
+					File.WriteAllText(filePath, outputTextbox.Text);
+					Title = $"{filePath} - VB.Net to Pseudocode Transpiler";
+				}
+				else
+					return;
+			}
+			else
+				File.WriteAllText(filePath, outputTextbox.Text);
+		}
+		private void fileSaveAs_Click(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+			saveFileDialog.Title = "Save as";
+			saveFileDialog.Filter = "Text File (*.txt)|*.txt";
+
+			if (saveFileDialog.ShowDialog() == true)
+			{
+				filePath = saveFileDialog.FileName;
+				File.WriteAllText(filePath, outputTextbox.Text);
+				Title = $"{filePath} - VB.Net to Pseudocode Transpiler";
+			}
+			else
+				return;
 		}
 	}
 }

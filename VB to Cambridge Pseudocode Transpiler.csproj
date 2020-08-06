@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>jonah.ico</ApplicationIcon>
+    <ApplicationIcon>vb to pcode jpeg.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -99,6 +99,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="jonah.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="vb to pcode jpeg.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
